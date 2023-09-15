@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/rb-two/static/css/main.fc7fce4d.css",
+    "main.js": "/rb-two/static/js/main.4c8cf375.js",
+    "index.html": "/rb-two/index.html",
+    "main.fc7fce4d.css.map": "/rb-two/static/css/main.fc7fce4d.css.map",
+    "main.4c8cf375.js.map": "/rb-two/static/js/main.4c8cf375.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.fc7fce4d.css",
+    "static/js/main.4c8cf375.js"
+  ]
+}
