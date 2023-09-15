@@ -9,11 +9,11 @@ export const useRequestGameHash = () => {
   const { switchNetwork, account } = useEthers();
 
   return useCallback(
-    async (bid: string, percent: string, isGreater: boolean) => {
+    async (bid: string, from: string, to: string) => {
       if (!GameContract) return;
       await switchNetwork(Sepolia.chainId);
       try {
-        const txPromise = await GameContract.requestGameHash(utils.parseEther(bid), percent, isGreater);
+        const txPromise = await GameContract.requestGameHash(utils.parseEther(bid), from, to);
         const tx = await txPromise.wait();
         toast.success('Requested!', {
             position: "top-center",

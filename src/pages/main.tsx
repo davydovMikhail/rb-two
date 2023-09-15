@@ -21,9 +21,9 @@ import GameItem from '../components/game-item/gameItem';
 const Main = () => {
     const { activateBrowserWallet, account } = useEthers();
     const { SetNotification, SetLoader, SetShowOk, 
-        // PushGame, 
+        PushGame, 
         ClearGames } = useActions();
-    // const {games} = useTypedSelector(state => state.main);
+    const {games} = useTypedSelector(state => state.main);
 
     const start: any = useRef();
 
@@ -61,20 +61,20 @@ const Main = () => {
         const fetchData = async () => {
             const maxWin = await maxWinHook(); 
             setMaxWin(maxWin as number);
-            // await updateLastGames();
+            await updateLastGames();
         }
         fetchData().catch(console.error);
     },[]);
 
-    // async function updateLastGames() {
-    //     const hashes = await hashesHook() as any[];
-    //     for(let i = 0; i < hashes.length; i++) {
-    //         // const game = await gameHook(hashes[i]);
-    //         // PushGame(game);
-    //     }
-    // }
+    async function updateLastGames() {
+        const hashes = await hashesHook() as any[];
+        for(let i = 0; i < hashes.length; i++) {
+            const game = await gameHook(hashes[i]);
+            PushGame(game);
+        }
+    }
 
-    async function handlePlay(isGreater: boolean) {
+    async function handlePlay() {
         if (!account) {
             toast.info('First connect your wallet', {
                 position: "top-center",
@@ -106,7 +106,7 @@ const Main = () => {
         SetNotification('Requesting the hash of your game...');
         const hashBefore = await hashHook(account);
         const balanceBefore = (await getBalanceHook(account as string)) as number;
-        const targetBlock = (await requestHook(amount, percent, isGreater))?.blockNumber.toString() as string;
+        const targetBlock = (await requestHook(amount, from, to))?.blockNumber.toString() as string;
         SetNotification('Confirm the call to the play function');
         SetInterval.start(async () => {
             const currentBlock = (await blockHook()) as number;
@@ -127,8 +127,8 @@ const Main = () => {
                 setBalance(balanceAfter);
                 const maxWin = await maxWinHook(); 
                 setMaxWin(maxWin as number);
-                // ClearGames();
-                // await updateLastGames();
+                ClearGames();
+                await updateLastGames();
             }
         }, 500, "checkHash")
     }
@@ -238,7 +238,7 @@ const Main = () => {
         if(Number(getPercent()) < 5 || Number(getPercent()) > 95 || Number(amount) < 1) {
           return "NaN"
         }
-        const answer = (Number(amount) * 98) / Number(getPercent());
+        const answer = (Number(amount) * 100) / Number(getPercent());
         return answer.toFixed(2);
     }
 
@@ -333,7 +333,7 @@ const Main = () => {
                                                     </div>
                                                     <div className="choose">
                                                         <div className="choose__var">
-                                                            <button onClick={() => handlePlay(false)} className="btn btn-warning btn-lg choose__btn">PLAY</button>
+                                                            <button onClick={() => handlePlay()} className="btn btn-warning btn-lg choose__btn">PLAY</button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -378,7 +378,7 @@ const Main = () => {
                                     </div>
                                 </div> */}
                                 <div className="row">
-                                    {/* <div className="col-md-12">
+                                    <div className="col-md-12">
                                         <h2>Last Results</h2>
                                     </div>
                                     <div>
@@ -394,7 +394,12 @@ const Main = () => {
                                         </div>
                                         <div className="col-sm-1">
                                             <div className="form-group">
-                                                <label>Chance(%)</label>
+                                                <label>From</label>
+                                            </div>
+                                        </div>
+                                        <div className="col-sm-1">
+                                            <div className="form-group">
+                                                <label>To</label>
                                             </div>
                                         </div>
                                         <div className="col-sm-2">
@@ -407,8 +412,8 @@ const Main = () => {
                                                 <label>Random Number</label>
                                             </div>
                                         </div>
-                                    </div> */}
-                                    {/* {games.map(block => GameItem(block))} */}
+                                    </div>
+                                    {games.map(block => GameItem(block))}
                                 </div>
                             </div>
                         </div>

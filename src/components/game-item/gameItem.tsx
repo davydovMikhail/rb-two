@@ -18,7 +18,12 @@ const GameItem = (props: IGame) => {
             </div>
             <div className="col-sm-1">
                 <div className="form-group">
-                    <div className="form-control">{props.percent}</div>
+                    <div className="form-control">{props.from}</div>
+                </div>
+            </div>
+            <div className="col-sm-1">
+                <div className="form-group">
+                    <div className="form-control">{props.to}</div>
                 </div>
             </div>
             <div className="col-sm-2">
