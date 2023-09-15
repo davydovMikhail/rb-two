@@ -20,8 +20,10 @@ import GameItem from '../components/game-item/gameItem';
 
 const Main = () => {
     const { activateBrowserWallet, account } = useEthers();
-    const { SetNotification, SetLoader, SetShowOk, PushGame, ClearGames } = useActions();
-    const {games} = useTypedSelector(state => state.main);
+    const { SetNotification, SetLoader, SetShowOk, 
+        // PushGame, 
+        ClearGames } = useActions();
+    // const {games} = useTypedSelector(state => state.main);
 
     const start: any = useRef();
 
@@ -29,6 +31,10 @@ const Main = () => {
     const [percent, setPercent] = useState('5');
     const [balance, setBalance] = useState(0);
     const [maxWin, setMaxWin] = useState(0); 
+
+    const [from, setFrom] = useState("2500");
+    const [to, setTo] = useState("7500");
+
     const firstIteration = useRef(true);
     const getBalanceHook = useGetBalance();
     const claimHook = useClaimTestTokens();
@@ -55,18 +61,18 @@ const Main = () => {
         const fetchData = async () => {
             const maxWin = await maxWinHook(); 
             setMaxWin(maxWin as number);
-            await updateLastGames();
+            // await updateLastGames();
         }
         fetchData().catch(console.error);
     },[]);
 
-    async function updateLastGames() {
-        const hashes = await hashesHook() as any[];
-        for(let i = 0; i < hashes.length; i++) {
-            const game = await gameHook(hashes[i]);
-            PushGame(game);
-        }
-    }
+    // async function updateLastGames() {
+    //     const hashes = await hashesHook() as any[];
+    //     for(let i = 0; i < hashes.length; i++) {
+    //         // const game = await gameHook(hashes[i]);
+    //         // PushGame(game);
+    //     }
+    // }
 
     async function handlePlay(isGreater: boolean) {
         if (!account) {
@@ -80,7 +86,7 @@ const Main = () => {
             });
             return;
         }
-        if (maxWin < (getPossibleWin() as number)) {
+        if (maxWin < (Number(getPossibleWin()))) {
             toast.info('Possible win exceed the max win', {
                 position: "top-center",
                 autoClose: 1000,
@@ -121,8 +127,8 @@ const Main = () => {
                 setBalance(balanceAfter);
                 const maxWin = await maxWinHook(); 
                 setMaxWin(maxWin as number);
-                ClearGames();
-                await updateLastGames();
+                // ClearGames();
+                // await updateLastGames();
             }
         }, 500, "checkHash")
     }
@@ -175,50 +181,65 @@ const Main = () => {
     function handleMinAmount() {
         setAmount("1");
     }
-    function handleValidatePercent(_percent: string) {
-        if(Number(_percent) > 95) {
-            setPercent('95');
-        } else if(Number(_percent) < 5) {
-            setPercent('5');
-        } else if(!_percent) {
-            setPercent('50');
+    function handleValidateFrom(_from: string) {
+        const diff = Number(to) - Number(_from);
+        if (Number(_from) > Number(to) || diff < 500) {
+            const from = Number(to) - 500
+            setFrom(from.toString());
+        } else if (diff > 9500) {
+            const from = Number(to) - 9500;
+            if (from < 0) {
+                setFrom("0");
+            } else {
+                setFrom(from.toString());
+            }
+        } else if (Number(_from) < 0) {
+            setFrom("0");
         } else {
-            setPercent(Math.trunc(Number(_percent)).toString());
-        }   
-    }
-    function handleDoublePercent() {
-        const doublePercent = Number(percent) * 2;
-        if(doublePercent > 95) {
-            setPercent('95');
-        } else {
-            setPercent(Math.trunc(doublePercent).toString());
+            setFrom(_from);
         }
     }
-    function handleMaxPercent() {
-        setPercent('95');
-    }
-    function handleMinPercent() {
-        setPercent('5');
-    }
-    function handleHalfPercent() {
-        const halfPercent = Number(percent) / 2;
-        if(halfPercent < 5) {
-            setPercent('5');
+    function handleValidateTo(_to: string) {
+        const diff = Number(_to) - Number(from);
+        if (Number(from) > Number(_to) || diff < 500) {
+            const to = Number(from) + 500
+            setTo(to.toString());
+        } else if (diff > 9500) {
+            const to = Number(from) + 9500;
+            if (to > 9999) {
+                setTo("9999");
+            } else {
+                setTo(to.toString());
+            }
+        } else if (Number(_to) > 9999) {
+            setTo("9999");
         } else {
-            setPercent(Math.trunc(halfPercent).toString());
+            setTo(_to);
         }
     }
-    function getRange() {
-        if(Number(percent) < 5 || Number(percent) > 95) {
-          return NaN
+
+    function changeFrom(_diff: number) {
+        const newFrom = Number(from) + _diff;
+        handleValidateFrom(newFrom.toString());
+    }
+    function changeTo(_diff: number) {
+        const newTo = Number(to) + _diff;
+        handleValidateTo(newTo.toString());
+    }
+
+    function getPercent() {
+        const diff = Number(to) - Number(from);
+        if(diff < 500 || diff > 9500) {
+            return NaN
         }
-        return 10000 * Number(percent) -1;
+        return diff / 100;
     }
     function getPossibleWin() {
-        if(Number(percent) < 5 || Number(percent) > 95 || Number(amount) < 1) {
+        if(Number(getPercent()) < 5 || Number(getPercent()) > 95 || Number(amount) < 1) {
           return "NaN"
         }
-        return (Number(amount) * 98) / Number(percent);
+        const answer = (Number(amount) * 98) / Number(getPercent());
+        return answer.toFixed(2);
     }
 
     return (
@@ -233,7 +254,7 @@ const Main = () => {
                                         <div className="space-top"></div>
                                         <div className="tim-container">
                                         <div className="tim-row" id="edit-metric-labels">
-                                            <h2>Guess The Number!!! Max possible win: {maxWin} </h2>
+                                            <h2>Max possible win: {maxWin} </h2>
                                             <legend></legend>
                                             <div className="row">
                                                 <div className="col-md-3">
@@ -257,42 +278,62 @@ const Main = () => {
                                                         <button onClick={() => handleMinAmount()} className="btn btn-primary btn-xs small-btn">min</button>
                                                     </div>
                                                 </div>
-                                                <div className="col-md-3">
+                                                <div className="col-md-2">
                                                     <div className="form-group">
-                                                        <label>Chance of win</label>
+                                                        <label>From</label>
+                                                    </div>
+                                                    <div className="form-group">
+                                                        <input 
+                                                            type="number" 
+                                                            placeholder="From" 
+                                                            className="form-control border-input"
+                                                            value={from || ''}
+                                                            onChange={(e) => setFrom(e.target.value)}  
+                                                            onBlur={(e) => handleValidateFrom(e.target.value)}  
+                                                        />
+                                                    </div>
+                                                    <div className="small-btns">
+                                                        <button onClick={() => {changeFrom(-50)}} className="btn btn-primary btn-xs small-btn__mini">-50</button>
+                                                        <button onClick={() => {changeFrom(50)}} className="btn btn-primary btn-xs small-btn__mini">+50</button>
+                                                        <button onClick={() => {changeFrom(-500)}} className="btn btn-primary btn-xs small-btn__mini">-500</button>
+                                                        <button onClick={() => {changeFrom(500)}} className="btn btn-primary btn-xs small-btn__mini">+500</button>
+                                                    </div>
+                                                </div>
+                                                <div className="col-md-2">
+                                                    <div className="form-group">
+                                                        <label>To</label>
                                                     </div>
                                                     <div className="form-group">
                                                         <input 
                                                             type="number" 
                                                             placeholder="Percent" 
                                                             className="form-control border-input"
-                                                            value={percent || ''}
-                                                            onChange={(e) => setPercent(e.target.value)}  
-                                                            onBlur={(e) => handleValidatePercent(e.target.value)}  
+                                                            value={to || ''}
+                                                            onChange={(e) => setTo(e.target.value)}  
+                                                            onBlur={(e) => handleValidateTo(e.target.value)}  
                                                         />
                                                     </div>
                                                     <div className="small-btns">
-                                                        <button onClick={() => handleDoublePercent()} className="btn btn-primary btn-xs small-btn">double</button>
-                                                        <button onClick={() => handleMaxPercent()} className="btn btn-primary btn-xs small-btn">max</button>
-                                                        <button onClick={() => handleHalfPercent()} className="btn btn-primary btn-xs small-btn">half</button>
-                                                        <button onClick={() => handleMinPercent()} className="btn btn-primary btn-xs small-btn">min</button>
+                                                        <button onClick={() => {changeTo(-50)}} className="btn btn-primary btn-xs small-btn__mini">-50</button>
+                                                        <button onClick={() => {changeTo(50)}} className="btn btn-primary btn-xs small-btn__mini">+50</button>
+                                                        <button onClick={() => {changeTo(-500)}} className="btn btn-primary btn-xs small-btn__mini">-500</button>
+                                                        <button onClick={() => {changeTo(500)}} className="btn btn-primary btn-xs small-btn__mini">+500</button>
                                                     </div>
                                                 </div>
-                                                <div className="col-md-6">
+                                                <div className="col-md-5">
                                                     <div className="info">
+                                                        <div className="info__win">
+                                                            {getPercent()}
+                                                        </div>
                                                         <div className="info__win">
                                                             {getPossibleWin()}
                                                         </div>
+                                                        <div className="info__win__title">Chance of win</div>
                                                         <div className="info__win__title">Possible win</div>
                                                     </div>
                                                     <div className="choose">
                                                         <div className="choose__var">
-                                                            <div className="choose__diaposon">0-{ getRange() }</div> 
-                                                            <button onClick={() => handlePlay(false)} className="btn btn-warning btn-lg choose__btn">LESS</button>
-                                                        </div>
-                                                        <div className="choose__var">
-                                                            <div className="choose__diaposon">{ 999999 - getRange() }-999999</div> 
-                                                            <button onClick={() => handlePlay(true)} className="btn btn-warning btn-lg choose__btn">MORE</button>
+                                                            <button onClick={() => handlePlay(false)} className="btn btn-warning btn-lg choose__btn">PLAY</button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -321,7 +362,7 @@ const Main = () => {
                                         </div>
                                     </div>
                                 }
-                                <div className="row">
+                                {/* <div className="row">
                                     <div className="col-md-8 h5" >
                                         Address token: 0x12a804d83957Dd32E7f8bC997681E7Ecd4920949 
                                     </div>
@@ -335,9 +376,9 @@ const Main = () => {
                                     <div className="col-md-8 h5" >
                                         Commissioner: 0x7770000000000000000000000000000000000777
                                     </div>
-                                </div>
+                                </div> */}
                                 <div className="row">
-                                    <div className="col-md-12">
+                                    {/* <div className="col-md-12">
                                         <h2>Last Results</h2>
                                     </div>
                                     <div>
@@ -366,8 +407,8 @@ const Main = () => {
                                                 <label>Random Number</label>
                                             </div>
                                         </div>
-                                    </div>
-                                    {games.map(block => GameItem(block))}
+                                    </div> */}
+                                    {/* {games.map(block => GameItem(block))} */}
                                 </div>
                             </div>
                         </div>

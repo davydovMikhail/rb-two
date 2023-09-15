@@ -3,6 +3,11 @@
     height: 30px;
     margin-bottom: 5px;
 }
+.small-btn__mini {
+    width: 70px;
+    height: 30px;
+    margin-bottom: 5px;
+}
 .small-btns {
     display: flex;
     justify-content: space-around;
@@ -15,6 +20,7 @@ input::-webkit-inner-spin-button {
     margin: 0;
 }
 .choose {
+    margin-top: 20px;
     display: flex;
     justify-content: space-around;
 }
@@ -30,13 +36,17 @@ input::-webkit-inner-spin-button {
 }
 .info {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
 }
 .info__win {
+    text-align: center;
+    width: 200px;
     margin: 0 auto;
     font-size: 50px;
 }
 .info__win__title {
+    text-align: center;
+    width: 200px;
     margin: 0 auto;
     font-size: 14px;
 }
