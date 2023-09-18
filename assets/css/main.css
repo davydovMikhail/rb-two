@@ -50,3 +50,14 @@ input::-webkit-inner-spin-button {
     margin: 0 auto;
     font-size: 14px;
 }
+
+.blue {
+    /* width: 50%; */
+    height: 20px;
+    background-color: rgb(70, 70, 157);
+}
+.green {
+    /* width: 50%; */
+    height: 20px;
+    background-color: rgb(59, 184, 59);
+}
