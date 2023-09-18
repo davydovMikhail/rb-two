@@ -242,6 +242,39 @@ const Main = () => {
         return answer.toFixed(2);
     }
 
+    function getWidth1() {
+        const diff = Number(to) - Number(from);
+        if(diff < 500 || diff > 9500) {
+            return 25
+        }
+        if(Number(to) > 9999 || Number(from) < 0) {
+            return 25
+        }
+        return Number(from) / 100;
+    }
+
+    function getWidth2() {
+        const diff = Number(to) - Number(from);
+        if(diff < 500 || diff > 9500) {
+            return 50
+        }
+        if(Number(to) > 9999 || Number(from) < 0) {
+            return 50
+        }
+        return (Number(to) - Number(from)) / 100;
+    }
+
+    function getWidth3() {
+        const diff = Number(to) - Number(from);
+        if(diff < 500 || diff > 9500) {
+            return 25
+        }
+        if(Number(to) > 9999 || Number(from) < 0) {
+            return 25
+        }
+        return (9999 - Number(to)) / 100;
+    }
+
     return (
         <>
             <div className="nude">
@@ -337,6 +370,11 @@ const Main = () => {
                                                         </div>
                                                     </div>
                                                 </div>
+                                            </div>
+                                            <div className="row" style={{display: "flex", marginTop: "20px"}}>
+                                                    <div className="blue" style={{ width: `${getWidth1()}%`}}></div>
+                                                    <div className="green" style={{ width:`${getWidth2()}%`}} ></div>
+                                                    <div className="blue" style={{ width: `${getWidth3()}%`}} ></div>
                                             </div>
                                         </div>
                                         </div>
